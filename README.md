@@ -1,11 +1,11 @@
-# Worker safety with AWS DeepLens and Amazon Rekognition
+# Worker safety with GluonCV and Amazon Rekognition (Web Cam Version)
 
-Use AWS DeepLens and Amazon Rekognition to build an application that helps identify if a person at a construction site is wearing the right safety gear, in this case, a hard hat. 
+Use Laptop WebCam, GluonCV on MXNet and Amazon Rekognition to build an application that helps identify if a person at a construction site is wearing the right safety gear, in this case, a hard hat. 
 
 ## Learning objectives
 In this lab you will learn the following:
-- Create and deploy an object detection project to AWS DeepLens.
-- Modify the AWS DeepLens object detection inference Lambda function to detect persons and upload the frame to Amazon S3.
+- Create and deploy an object detection project to your local device.
+- Modify object detection code so that it detect persons and upload the frame to Amazon S3.
 - Create a Lambda function to identify persons who are not wearing safety hats.
 - Analyze the results using AWS IoT , Amazon CloudWatch and a web dashboard.
 
@@ -40,24 +40,25 @@ https://www.aws.training/Details/eLearning?id=32077
 8. Click Create role
 
 
-### Setup an AWS IAM role for AWS DeepLens Lambda function
+### Setup an AWS IAM user for Local Function
 
-1. Click create role
-2. Under AWS service, select Lambda and click Next: Permissions
-3. Under Attach permission policies
-    1. search S3 and select AmazonS3FullAccess
-    2. search lambda and select checkbox next to AWSLambdaFullAccess
-4. Click Next: Tags and Next: Review
-5. Name it “DeepLensInferenceLambdaRole”
-6. Click Create role
-
-### Update DeepLens AWSDeepLensGreengrassGroupRole IAM role for AWS DeepLens
+*Skip this step if you already have aws-cli access configured from your local machine*
 
 1. Go to AWS IAM in AWS Console at https://console.aws.amazon.com/iam
-2. Click on Roles
-3. Serach for AWSDeepLensGreengrassGroupRole and click on the Role name
-4. Under permissions, click on Attach Policies
-5. Search S3, select AmazonS3FullAccess and click Attach policy
+2. Click on Users and then click Add user
+3. In the Add User form
+    1. Give your user a good user name like - your-name-worker-safety (example: adesojia-worker-safety)
+    2. Click on Programmatric access on AWS access type
+    3. Click Next: Permissions
+4. Under Set permissions, select 'Attach existing policies directly' 
+    1. Search for AmazonS3FullAccess and select it
+    2. Click Next: Tags
+5. Leave blank and go on to click Next:Review
+6. On the review page ensure that AmazonS3FullAccess is listed under Permissions summary and click Create User
+7. You should see a success screen. Take note of your Access Key ID and click to show your Secret key and take note of that as well. 
+8. On your computer, open a terminal window and type `aws configure`. 
+    If you do not have aws installed follow these [instructions](https://docs.amazonaws.cn/en_us/cli/latest/userguide/install-cliv1.html) to get aws-cli installed 
+9. Enter the Access Key ID and Secret key from the previous step. For region leave the default and for output format leave the default.
 
 ### Create an Amazon S3 bucket
 
@@ -65,7 +66,7 @@ https://www.aws.training/Details/eLearning?id=32077
 2. Click on Create bucket.
 3. Under Name and region:
 
-* Bucket name: Enter a bucket name- your name-worker-safety (example: kashif-worker-safety)
+* Bucket name: Enter a bucket name such as -> your name-worker-safety (example: kashif-worker-safety)
 * Choose US East (N. Virginia)
 * Click Next
 
@@ -102,57 +103,18 @@ https://www.aws.training/Details/eLearning?id=32077
 * Click Add.
 * Click Save on the top right to save the changes to the Lambda function.
 
-### Create an AWS DeepLens inference Lambda function
+### Create an Object Detection inference function using MXNet and GluonCV
 
-1. Go to AWS Lambda in AWS Console at https://console.aws.amazon.com/lambda/.
-2. Click on Create function.
-3. Under Create function, select Blueprints.
-4. Under Blueprints, type greengrass and hit enter to filter blueprint templates.
-5. Select greengrass-hello-world and click Configure.
-6. Under Basic information, provide the following details:
-
-* Name: name-worker-safety-deeplens (example: kashif-worker-safety-deeplens)
-* Role: Choose and existing role
-* Existing role: DeepLensInferenceLambdaRole
-* Click Create function.
-
-1. Copy the code from [deeplens-lambda.py](./code/deeplens-lambda.py) and paste it under the Function code for the Lambda function. 
-2. Go to line 34 and modify the line below with the name of your S3 bucket created in the earlier step.
+1. Download the code from [demo-webcam.py](./code/demo-webcam.py) to your local machine. 
+2. Go to line 18 and modify the line below with the name of your S3 bucket created in the earlier step.
 
 * bucket_name = "REPLACE-WITH-NAME-OF-YOUR-S3-BUCKET"
 
-1. Click Save.
-2. Click on Actions, and then "Publish new version".
-3. For Version description enter: Detect a person and push frame to S3 bucket. and click Publish.
-
-### Create an AWS DeepLens project
-
-1. Using your browser, open the AWS DeepLens console at https://console.aws.amazon.com/deeplens/.
-2. Choose Projects, then choose Create new project.
-3. On the Choose project type screen
-
-* Choose Create a new blank project, and click Next.
-
-1. On the Specify project details screen
-
-    * Under Project information section:
-        * Project name: your-user-name-worker-safety (example: kashif-worker-safety)
-    * Under Project content:
-        * Click on Add model, click on radio button for deeplens-object-detection and click Add model.
-        * Click on Add function, click on radio button for your lambda function (example: kashif-worker-safety-deeplens) lambda function and click Add function.
-* Click Create. This returns you to the Projects screen.
-
-### Deploy the project to AWS DeepLens 
-
-1. From the AWS DeepLens console, on the Projects screen, choose the radio button to the left of your project name, then choose Deploy to device.
-2. On the Target device screen, from the list of AWS DeepLens devices, choose the radio button to the left of the device where you want to deploy this project.
-3. Choose Review. This will take you to the Review and deploy screen.
-    If a project is already deployed to the device, you will see a warning message "There is an existing project on this device. Do you want to replace it? If you Deploy, AWS DeepLens will remove the current project before deploying the new project." Go ahead and choose Deploy.
-4. On the Review and deploy screen, review your project and click Deploy to deploy the project to your AWS DeepLens. This will take you to the device screen, which shows the progress of your project deployment. Once your deployment is successful, proceed to the next step.
+3. Save the code and run it by going to the directory where it is saved and running `python demo_webcam.py`. This should trigger the webcam on your computer to start running and publishing images to s3 when it detects a person in the frame.
 
 ### View output in AWS IoT
 
-1. Go to AWS IoT console at https://console.aws.amazon.com/iot/home
+1. Go to AWS IoT console at https://console.aws.amazon.com/iot/home and Click Test and Subscribe to a topic
 2. Under Subscription topic, enter the topic name that you entered as an environment variable for the Lambda function you created in the earlier step (example: worker-safety-demo-cloud) and click Subscribe to topic.
 3. You should now see JSON message with a list of people detected and whether they are wearing safety hats or not.
 
