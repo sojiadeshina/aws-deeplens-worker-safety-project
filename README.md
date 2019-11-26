@@ -105,7 +105,7 @@ https://www.aws.training/Details/eLearning?id=32077
 
 ### Create an Object Detection inference function using MXNet and GluonCV
 
-1. Download the code from [demo-webcam.py](./code/demo-webcam.py) to your local machine. 
+1. Download the code from [demo-webcam.py](./code/demo_webcam.py) to your local machine. 
 2. Go to line 18 and modify the line below with the name of your S3 bucket created in the earlier step.
 
 * bucket_name = "REPLACE-WITH-NAME-OF-YOUR-S3-BUCKET"
@@ -156,7 +156,7 @@ https://www.aws.training/Details/eLearning?id=32077
 26. In the address URL append ?iottopic=NAME-OF-YOUR-IOT-TOPIC. This is the same value you added to the Lambda environment variable and hit Enter.
 27. You should now see images coming in from AWS DeepLens with a green or red box around the person. Green indicates the person is wearing a safety hat and red indicates a person who is not. 
 
-This completes the application- you have now learnt to build an application that detects if a person at a construction site is wearing a safety hat or not. You can quickly extend this application to detect lab coats or helmets etc. 
+This completes the application- you have now learnt to build an application that detects if a person at a construction site is wearing a safety hat or not. You can quickly extend this application to detect lab coats or boots etc. 
 
 Before you exit, make sure you clean up any resources you created as part of this lab. 
 
