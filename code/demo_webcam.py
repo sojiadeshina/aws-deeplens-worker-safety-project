@@ -39,20 +39,19 @@ def main():
         ret, frame = cap.read()
 
         # Image pre-processing
-        cvframe = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        frame = mx.nd.array(cvframe).astype('uint8')
-        rgb_nd, scaled_frame = gcv.data.transforms.presets.ssd.transform_test(frame, short=512, max_size=700)
+        nd_frame = mx.nd.array(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)).astype('uint8')
+        rgb_nd, scaled_frame = gcv.data.transforms.presets.ssd.transform_test(nd_frame, short=512, max_size=700)
 
         # Run frame through network
         class_IDs, scores, bounding_boxes = net(rgb_nd)
 
         if person_detected(class_IDs, scores, net.classes):
-            rfr = cv2.resize(cvframe, (672, 380))
+            rfr = cv2.resize(frame, (672, 380))
             push_to_s3(rfr, args.s3_bucket)
 
         # Display the result
-        scale = 1.0 * frame.shape[0] / scaled_frame.shape[0]
-        img = gcv.utils.viz.cv_plot_bbox(frame.asnumpy(), bounding_boxes[0], scores[0], class_IDs[0], class_names=net.classes, scale=scale)
+        scale = 1.0 * nd_frame.shape[0] / scaled_frame.shape[0]
+        img = gcv.utils.viz.cv_plot_bbox(nd_frame.asnumpy(), bounding_boxes[0], scores[0], class_IDs[0], class_names=net.classes, scale=scale)
         gcv.utils.viz.cv_plot_image(img)
         cv2.waitKey(1)
 
