@@ -70,7 +70,7 @@ https://www.aws.training/Details/eLearning?id=32077
 * Choose US East (N. Virginia)
 * Click Next
 
-4. Leave the default values for Configure Options screen and click Next
+4. Leave the default values for Configure Options but ensure that the S3 bucket is not blocking public access and click Next
 5. Click Next, and click Create bucket.
 
 ### Create a cloud Lambda function
@@ -105,6 +105,7 @@ https://www.aws.training/Details/eLearning?id=32077
 
 ### Create an Object Detection inference function using MXNet and GluonCV
 
+0. Run the following in a terminal or conda environment `pip install mxnet gluoncv`
 1. Download the code from [demo-webcam.py](./code/demo_webcam.py) to your local machine. 
 2. Go to line 18 and modify the line below with the name of your S3 bucket created in the earlier step.
 
